@@ -12,6 +12,7 @@ import 'app/domain/contracts/number_trivia/number_trivia_repository.dart';
 import 'app/domain/usecases/number_trivia/get_concrete_number_trivia.dart';
 import 'app/domain/usecases/number_trivia/get_random_number_trivia.dart';
 import 'app/presentation/bloc/number_trivia_bloc.dart';
+import 'app/presentation/state/number_trivia_store.dart';
 import 'core/network/network_info.dart';
 import 'core/utils/input_converter.dart';
 
@@ -28,7 +29,23 @@ Future<void> init() async {
         inputConverter: sl<InputConverter>()),
   );
 
+  // ---------------------------------------------------------------------------
+  // Stores (MobX)
+  // ---------------------------------------------------------------------------
+
+  // Number trivia store
+  sl.registerLazySingleton<NumberTriviaStore>(
+    () => NumberTriviaStore(
+      sl<GetConcreteNumberTrivia>(),
+      sl<GetRandomNumberTrivia>(),
+      sl<InputConverter>(),
+    ),
+  );
+
+  // ---------------------------------------------------------------------------
   // Use cases
+  // ---------------------------------------------------------------------------
+
   sl.registerLazySingleton<GetConcreteNumberTrivia>(
     () => GetConcreteNumberTrivia(
         numberTriviaRepository: sl<NumberTriviaRepository>()),

@@ -39,18 +39,18 @@ class NumberTriviaRepositoryImpl implements NumberTriviaRepository {
   ) async {
     if (await _networkInfo.isConnected) {
       try {
-        final remoteTrivia = await getConcreteOrRandom();
+        final remoteTriviaDto = await getConcreteOrRandom();
 
-        _localSource.cacheNumberTrivia(remoteTrivia);
+        _localSource.cacheNumberTrivia(remoteTriviaDto);
 
-        return Right(remoteTrivia);
+        return Right(remoteTriviaDto.toDomain());
       } on ServerException {
         return Left(ServerFailure());
       }
     } else {
       try {
-        final localTrivia = await _localSource.getLastNumberTrivia();
-        return Right(localTrivia);
+        final localTriviaDto = await _localSource.getLastNumberTrivia();
+        return Right(localTriviaDto.toDomain());
       } on CacheException {
         return Left(CacheFailure());
       }

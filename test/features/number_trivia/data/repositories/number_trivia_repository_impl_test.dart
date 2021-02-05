@@ -84,7 +84,7 @@ void main() {
           // has been called with tNumber and not something else
           verify(mockRemoteSource.getConcreteNumberTrivia(tNumber));
           expect(result,
-              equals(const Right<dynamic, NumberTrivia>(tNumberTrivia)));
+              equals(Right<dynamic, NumberTrivia>(tNumberTrivia.toDomain())));
         },
       );
 
@@ -135,7 +135,7 @@ void main() {
           verify(mockLocalSource.getLastNumberTrivia());
           verifyZeroInteractions(mockRemoteSource);
           expect(result,
-              equals(const Right<dynamic, NumberTrivia>(tNumberTrivia)));
+              equals(Right<dynamic, NumberTrivia>(tNumberTrivia.toDomain())));
         },
       );
 
@@ -188,7 +188,7 @@ void main() {
           // has been called with tNumber and not something else
           verify(mockRemoteSource.getRandomNumberTrivia());
           expect(result,
-              equals(const Right<dynamic, NumberTrivia>(tNumberTrivia)));
+              equals(Right<dynamic, NumberTrivia>(tNumberTrivia.toDomain())));
         },
       );
 
@@ -239,7 +239,7 @@ void main() {
           verify(mockLocalSource.getLastNumberTrivia());
           verifyZeroInteractions(mockRemoteSource);
           expect(result,
-              equals(const Right<dynamic, NumberTrivia>(tNumberTrivia)));
+              equals(Right<dynamic, NumberTrivia>(tNumberTrivia.toDomain())));
         },
       );
 

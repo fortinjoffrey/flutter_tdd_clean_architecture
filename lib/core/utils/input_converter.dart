@@ -4,7 +4,7 @@ import '../error/failure.dart';
 
 class InputConverter {
   Either<Failure, int> stringToUnsignedInteger(String str) {
-    final int integer = int.tryParse(str);
+    final int integer = int.tryParse(str ?? '');
 
     return (integer == null || integer.isNegative)
         ? Left(InvalidInputFailre())

@@ -1,12 +1,19 @@
+import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import '../../domain/entities/number_trivia.dart';
 
-class NumberTriviaDto extends NumberTrivia {
+class NumberTriviaDto extends Equatable {
+  final String text;
+  final int number;
+
   const NumberTriviaDto({
-    @required String text,
-    @required int number,
-  }) : super(text: text, number: number);
+    @required this.text,
+    @required this.number,
+  });
+
+  @override
+  List<Object> get props => [text, number];
 
   factory NumberTriviaDto.fromJson(Map<String, dynamic> json) =>
       NumberTriviaDto(
@@ -18,4 +25,8 @@ class NumberTriviaDto extends NumberTrivia {
         'text': text,
         'number': number,
       };
+}
+
+extension NumberTriviaDtoX on NumberTriviaDto {
+  NumberTrivia toDomain() => NumberTrivia(text: text, number: number);
 }
