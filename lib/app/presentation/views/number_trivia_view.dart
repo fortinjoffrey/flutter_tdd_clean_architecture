@@ -1,56 +1,93 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
-import '../../../injection_container.dart';
-import '../bloc/number_trivia_bloc.dart';
 import '../components/wigets.dart';
+import '../state/number_trivia_store.dart';
 
-class NumberTriviaView extends StatelessWidget {
-  const NumberTriviaView({Key key}) : super(key: key);
+class NumberTriviaView extends StatefulWidget {
+  final NumberTriviaStore numberTriviaStore;
+
+  const NumberTriviaView({
+    Key key,
+    @required this.numberTriviaStore,
+  }) : super(key: key);
+
+  @override
+  _NumberTriviaViewState createState() => _NumberTriviaViewState();
+}
+
+class _NumberTriviaViewState extends State<NumberTriviaView> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  ReactionDisposer _reactionDisposer;
+
+  @override
+  void initState() {
+    _reactionDisposer = reaction((_) => widget.numberTriviaStore.errorMessage,
+        (String message) {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(message)));
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _reactionDisposer();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
           title: const Text('Number Trivia'),
         ),
         body: _buildBody(context));
   }
 
-  BlocProvider<NumberTriviaBloc> _buildBody(BuildContext context) {
-    return BlocProvider(
-        create: (_) => sl<NumberTriviaBloc>(),
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 10.0),
-              BlocBuilder<NumberTriviaBloc, NumberTriviaState>(
-                builder: (context, state) {
-                  if (state is EmptyNumberTriviaState) {
-                    return const MessageDisplay(message: 'Start searching');
-                  } else if (state is LoadingNumberTriviaState) {
-                    return const LoadingWidget();
-                  } else if (state is LoadedNumberTriviaState) {
-                    return TriviaDisplay(numberTrivia: state.trivia);
-                  } else if (state is ErrorNumberTriviaState) {
-                    return MessageDisplay(message: state.message);
-                  } else {
-                    return Container();
-                  }
-                },
-              ),
-              const SizedBox(height: 20),
-              const TriviaControls()
-            ],
+  Widget _buildBody(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        children: [
+          const SizedBox(height: 10.0),
+          Observer(
+            builder: (_) {
+              switch (widget.numberTriviaStore.state) {
+                case StoreState.initial:
+                  return const MessageDisplay(message: 'Start searching');
+                  break;
+                case StoreState.pending:
+                  return const LoadingWidget();
+                  break;
+                case StoreState.complete:
+                  return TriviaDisplay(
+                      numberTrivia: widget.numberTriviaStore.numberTrivia);
+                  break;
+                case StoreState.error:
+                  return MessageDisplay(
+                      message: widget.numberTriviaStore.errorMessage);
+                  break;
+                default:
+                  return Container();
+              }
+            },
           ),
-        ));
+          const SizedBox(height: 20),
+          TriviaControls(numberTriviaStore: widget.numberTriviaStore)
+        ],
+      ),
+    );
   }
 }
 
 class TriviaControls extends StatefulWidget {
+  final NumberTriviaStore numberTriviaStore;
+
   const TriviaControls({
     Key key,
+    @required this.numberTriviaStore,
   }) : super(key: key);
 
   @override
@@ -105,13 +142,11 @@ class _TriviaControlsState extends State<TriviaControls> {
 
   void _dispatchConcrete() {
     controller.clear();
-    BlocProvider.of<NumberTriviaBloc>(context)
-        .add(GetTriviaForConcreteNumberEvent(inputString));
+    widget.numberTriviaStore.getConcrete(inputString);
   }
 
   void _dispatchRandom() {
     controller.clear();
-    BlocProvider.of<NumberTriviaBloc>(context)
-        .add(GetTriviaForRandomNumberEvent());
+    widget.numberTriviaStore.getRandom();
   }
 }
