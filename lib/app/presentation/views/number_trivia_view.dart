@@ -54,24 +54,13 @@ class _NumberTriviaViewState extends State<NumberTriviaView> {
           const SizedBox(height: 10.0),
           Observer(
             builder: (_) {
-              switch (widget.numberTriviaStore.state) {
-                case StoreState.initial:
-                  return const MessageDisplay(message: 'Start searching');
-                  break;
-                case StoreState.pending:
-                  return const LoadingWidget();
-                  break;
-                case StoreState.complete:
-                  return TriviaDisplay(
-                      numberTrivia: widget.numberTriviaStore.numberTrivia);
-                  break;
-                case StoreState.error:
-                  return MessageDisplay(
-                      message: widget.numberTriviaStore.errorMessage);
-                  break;
-                default:
-                  return Container();
-              }
+              return widget.numberTriviaStore.state.when(
+                initial: () => const MessageDisplay(message: 'Start searching'),
+                pending: () => const LoadingWidget(),
+                complete: (numberTrivia) =>
+                    TriviaDisplay(numberTrivia: numberTrivia),
+                failure: (msg) => MessageDisplay(message: msg),
+              );
             },
           ),
           const SizedBox(height: 20),

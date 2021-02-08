@@ -4,12 +4,11 @@ import 'package:mobx/mobx.dart';
 import '../../../core/error/failure.dart';
 import '../../../core/utils/input_converter.dart';
 import '../../domain/entities/number_trivia.dart';
+import '../../domain/entities/store_state.dart';
 import '../../domain/usecases/number_trivia/get_concrete_number_trivia.dart';
 import '../../domain/usecases/number_trivia/get_random_number_trivia.dart';
 
 part 'number_trivia_store.g.dart';
-
-enum StoreState { initial, pending, complete, error }
 
 const String serverFailureMessage = 'Server Failure';
 const String cacheFailureMessage = 'Cache Failure';
@@ -49,21 +48,21 @@ abstract class _NumberTriviaStore with Store {
   String errorMessage;
 
   @computed
-  StoreState get state {
+  StoreState<NumberTrivia> get state {
     if (_numberTriviaFuture == null ||
         _numberTriviaFuture.status == FutureStatus.rejected) {
-      return StoreState.initial;
+      return const StoreState<NumberTrivia>.initial();
     }
 
     if (_numberTriviaFuture.value != null &&
             _numberTriviaFuture.value.isLeft() ||
         errorMessage != null) {
-      return StoreState.error;
+      return StoreState<NumberTrivia>.failure(errorMessage ?? '');
     }
 
     return _numberTriviaFuture.status == FutureStatus.pending
-        ? StoreState.pending
-        : StoreState.complete;
+        ? const StoreState<NumberTrivia>.pending()
+        : StoreState<NumberTrivia>.complete(numberTrivia);
   }
 
   @action
