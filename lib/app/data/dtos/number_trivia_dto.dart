@@ -1,30 +1,20 @@
-import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/number_trivia.dart';
 
-class NumberTriviaDto extends Equatable {
-  final String text;
-  final int number;
+part 'number_trivia_dto.freezed.dart';
+part 'number_trivia_dto.g.dart';
 
-  const NumberTriviaDto({
-    @required this.text,
-    @required this.number,
-  });
-
-  @override
-  List<Object> get props => [text, number];
+@freezed
+abstract class NumberTriviaDto with _$NumberTriviaDto {
+  const factory NumberTriviaDto({
+    @required String text,
+    @required int number,
+  }) = _NumberTriviaDto;
 
   factory NumberTriviaDto.fromJson(Map<String, dynamic> json) =>
-      NumberTriviaDto(
-        text: json['text'] as String,
-        number: (json['number'] as num).toInt(),
-      );
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'text': text,
-        'number': number,
-      };
+      _$NumberTriviaDtoFromJson(json);
 }
 
 extension NumberTriviaDtoX on NumberTriviaDto {
